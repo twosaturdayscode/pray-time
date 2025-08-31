@@ -1,0 +1,16 @@
+{
+  "name": "@duesabati/prayer-time",
+  "description": "It's prayer time! A lib for islamic prayer time calculations.",
+  "version": "0.1.0",
+  "exports": "./index.ts",
+
+  "imports": {
+    "@duesabati/sundial": "jsr:@duesabati/sundial@0.3.1"
+  },
+
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true,
+    "lineWidth": 80
+  }
+}
