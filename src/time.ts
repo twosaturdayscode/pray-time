@@ -29,57 +29,57 @@ export class Time {
     this.asrFactor = config.asrFactor ?? this.asrFactor
   }
 
-  static For<T extends Time>(this: ClassOf<T, Config>, date: Date) {
+  static For<T extends Time>(this: ClassOf<T, Config>, date: Date): T {
     return new this({ date })
   }
 
   static At<T extends Time>(
     this: ClassOf<T, Config>,
     location: [number, number],
-  ) {
+  ): T {
     return new this({ location })
   }
 
   static InTimezone<T extends Time>(
     this: ClassOf<T, Config>,
     timezone: number,
-  ) {
+  ): T {
     return new this({ timezone })
   }
 
-  static Using<T extends Time>(this: ClassOf<T, Config>, method: Method) {
+  static Using<T extends Time>(this: ClassOf<T, Config>, method: Method): T {
     return new this({ method })
   }
 
-  At<T extends Time>(this: T, location: [number, number]) {
+  At<T extends Time>(this: T, location: [number, number]): T {
     return new (this.constructor as ClassOf<T, Config>)({
       ...this.config,
       location,
     })
   }
 
-  InTimezone<T extends Time>(this: T, timezone: number) {
+  InTimezone<T extends Time>(this: T, timezone: number): T {
     return new (this.constructor as ClassOf<T, Config>)({
       ...this.config,
       timezone,
     })
   }
 
-  Using<T extends Time>(this: T, method: Method) {
+  Using<T extends Time>(this: T, method: Method): T {
     return new (this.constructor as ClassOf<T, Config>)({
       ...this.config,
       method,
     })
   }
 
-  MaghribOffsetBy<T extends Time>(this: T, minutes: number) {
+  MaghribOffsetBy<T extends Time>(this: T, minutes: number): T {
     return new (this.constructor as ClassOf<T, Config>)({
       ...this.config,
       maghribOffset: minutes,
     })
   }
 
-  WithAsrFactor<T extends Time>(this: T, ratio: AsrFactor) {
+  WithAsrFactor<T extends Time>(this: T, ratio: AsrFactor): T {
     return new (this.constructor as ClassOf<T, Config>)({
       ...this.config,
       asrFactor: ratio,
@@ -97,7 +97,7 @@ export class Time {
     }
   }
 
-  protected get sun() {
+  protected get sun(): { times: Sun.Times; angle: Sun.Angle } {
     return {
       times: Sun.Times.On(this.date).At(...this.location),
       angle: Sun.Angle.On(this.date, [this.location[0]]),
@@ -108,7 +108,7 @@ export class Time {
     return new prayer(this.config)
   }
 
-  get All() {
+  get All(): [Fajr, Dhuhr, Asr, Maghrib, Isha] {
     return [
       new Fajr(this.config),
       new Dhuhr(this.config),
@@ -118,26 +118,26 @@ export class Time {
     ] as const
   }
 
-  get Remaining() {
+  get Remaining(): ReadonlyArray<Fajr | Dhuhr | Asr | Maghrib | Isha> {
     return this.All.filter((prayer) =>
       new Date(this.date).setHours(0, 0, 0, 0) +
           prayer.Time.Milliseconds > this.date.getTime()
     )
   }
 
-  get Upcoming() {
-    return this.Remaining.slice(0, 1)
+  get Upcoming(): Fajr | Dhuhr | Asr | Maghrib | Isha | undefined {
+    return this.Remaining.at(0)
   }
 
-  get Past() {
+  get Past(): ReadonlyArray<Fajr | Dhuhr | Asr | Maghrib | Isha> {
     return this.All.filter((prayer) =>
       new Date(this.date).setHours(0, 0, 0, 0) +
           prayer.Time.Milliseconds < this.date.getTime()
     )
   }
 
-  get Previous() {
-    return this.Past.slice(-1)
+  get Previous(): Fajr | Dhuhr | Asr | Maghrib | Isha | undefined {
+    return this.Past.at(-1)
   }
 }
 
